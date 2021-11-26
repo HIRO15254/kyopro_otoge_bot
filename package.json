@@ -15,7 +15,7 @@
     "eslint": "^8.3.0",
     "license": "ISC"
   },
-  "engines": { 
+  "engines": {
     "node": "16.x" 
   }
 }
