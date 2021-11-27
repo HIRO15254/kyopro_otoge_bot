@@ -4,6 +4,15 @@ const token = process.env.DISCORD_TOKEN;
 const guildID = process.env.GUILD_ID;
 // const clientID = process.env.CLIENT_ID;
 
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { 
+    sslmode: 'require',
+    rejectUnauthorized: false
+  }
+});
+
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 const commands = {};
@@ -29,7 +38,7 @@ client.on('interactionCreate', async (interaction) => {
 	}
 	const command = commands[interaction.commandName];
 	try {
-		await command.execute(interaction);
+		await command.execute(interaction, pool);
 	}
 	catch (error) {
 		console.error(error);
