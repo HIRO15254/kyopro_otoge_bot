@@ -2,3 +2,5 @@
 .eslintrc.json
 package-lock.json
 localMain.js
+credentials.json
+tests/

@@ -5,9 +5,8 @@ module.exports = {
 		name: "recommend_get",
 		description: "おすすめ曲をランダムで1曲返します",
 	},
-	async execute(interaction) {
+	async execute(interaction, credentials) {
 		const doc = new GoogleSpreadsheet('1zEJ5u2OmX9LLRyf_OFs3NT5sqClMr8wWN2CY9_uJKC4');
-    const credentials = require('../credentials.json');
     await doc.useServiceAccountAuth(credentials);
     await doc.loadInfo();
 
@@ -16,8 +15,7 @@ module.exports = {
     const num = Math.floor(Math.random() * Rows.length);
     const embed = new Discord.MessageEmbed()
       .setTitle(`${Rows[num].title} / ${Rows[num].artist}`)
-      .setDescription(`初出: ${Rows[num].game} \n 音源: ${Rows[num].url}`)
-      .setColor('RANDOM')
+      .setDescription(`初出: ${Rows[num].game}\n音源: ${Rows[num].url}`)
 		await interaction.reply({ embeds: [embed] });
 	},
 };

@@ -13,6 +13,8 @@ const pool = new Pool({
   }
 });
 
+const credentials = require("/app/google-credentials.json");
+
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 const commands = {};
@@ -28,7 +30,7 @@ client.once('ready', async () => {
 	for (const commandName in commands) {
 		data.push(commands[commandName].data);
 	}
-	await client.application.commands.set(data, guildID);
+	await client.application.commands.set(data);
 	console.log('Ready!');
 });
 
@@ -38,7 +40,7 @@ client.on('interactionCreate', async (interaction) => {
 	}
 	const command = commands[interaction.commandName];
 	try {
-		await command.execute(interaction, pool);
+		await command.execute(interaction, credentials);
 	}
 	catch (error) {
 		console.error(error);
