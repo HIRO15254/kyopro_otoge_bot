@@ -27,9 +27,8 @@ module.exports = {
 			},
 		]
 	},
-	async execute(interaction) {
+	async execute(interaction, credentials) {
 		const doc = new GoogleSpreadsheet('1zEJ5u2OmX9LLRyf_OFs3NT5sqClMr8wWN2CY9_uJKC4');
-    const credentials = require('../credentials.json');
     await doc.useServiceAccountAuth(credentials);
     await doc.loadInfo();
 

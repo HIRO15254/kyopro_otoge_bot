@@ -12,6 +12,7 @@ module.exports = {
 
 		const Sheet = await doc.sheetsById[0];
     const Rows = await Sheet.getRows();
+
     const num = Math.floor(Math.random() * Rows.length);
     const embed = new Discord.MessageEmbed()
       .setTitle(`${Rows[num].title} / ${Rows[num].artist}`)
