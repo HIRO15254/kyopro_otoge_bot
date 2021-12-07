@@ -17,7 +17,7 @@ function constToLevel(cons) {
 }
 
 function stringToLevel(str) {
-	if (str[str.length - 1] = '+'){
+	if (str[str.length - 1] == '+'){
 		return parseInt(str.substring(0, str.length - 1)) * 2 - 8
 	}
 	else{
