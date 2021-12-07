@@ -1,17 +1,27 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const Discord = require("discord.js");
 
+const pickN = (min, max, n) => {
+  const list = new Array(max-min+1).fill().map((_, i) => i + min);
+  const ret = [];
+  while(n--) {
+    const rand = Math.floor(Math.random() * (list.length + 1)) - 1;
+    ret.push(...list.splice(rand, 1))
+  }
+  return ret;
+}
+
 function constToLevel(cons) {
 	const cons_int = parseInt(cons)
 	if(cons < 9){
-		return toString(cons_int);
+		return String(cons_int);
 	}
 	else{
 		if(cons - cons_int < 0.7){
-			return toString(cons_int);
+			return String(cons_int);
 		}
 		else{
-			return toString(cons_int) + "+";
+			return String(cons_int) + "+";
 		}
 	}
 }
@@ -155,13 +165,13 @@ module.exports = {
 
 		if (charts.length !== 0) {
 			if(repeat){
-				let ret = ''
-				for(let i = 0; i < Math.min(repeat, 10) && charts.length != 0; i++){
-					const num = Math.floor(Math.random() * charts.length);
+				let ret = '\n';
+				const nums = pickN(0, charts.length - 1, Math.min(repeat, 10, charts.length));
+				nums.forEach(num => {
 					const chart = charts[num];
-					ret += `${chart.title} [${chart.diff[0]} ${chart.level}(${chart.const.toFixed(1)})]\n`
-					charts.splice(num);
-				}
+					console.log(chart, num)
+					ret += `${chart.title} [${chart.diff[0]} ${chart.level}(${chart.const.toFixed(1)})]\n`;
+				})
 				await interaction.reply({
 					content: ret
 				});
