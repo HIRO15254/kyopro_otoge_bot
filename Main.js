@@ -1,7 +1,8 @@
 const { Client, Intents } = require('discord.js');
 const fs = require('fs');
 const token = process.env.DISCORD_TOKEN;
-const guildID = process.env.GUILD_ID;
+const guildID = '821604538338902091';
+const guildID2 = '702851795717718066';
 // const clientID = process.env.CLIENT_ID;
 
 const { Pool } = require('pg');
@@ -30,7 +31,8 @@ client.once('ready', async () => {
 	for (const commandName in commands) {
 		data.push(commands[commandName].data);
 	}
-	await client.application.commands.set(data);
+	await client.application.commands.set(data, guildID);
+	await client.application.commands.set(data, guildID2);
 	console.log('Ready!');
 });
 
