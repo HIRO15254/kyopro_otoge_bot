@@ -4,14 +4,14 @@ const Discord = require("discord.js");
 function constToLevel(cons) {
 	const cons_int = parseInt(cons)
 	if(cons < 9){
-		return cons_int
+		return toString(cons_int);
 	}
 	else{
 		if(cons - cons_int < 0.7){
-			return cons_int * 2 - 9
+			return toString(cons_int);
 		}
 		else{
-			return cons_int * 2 - 8
+			return toString(cons_int) + "+";
 		}
 	}
 }
@@ -141,13 +141,13 @@ module.exports = {
 			if (re.exec(level)){
 				q = re.exec(level);
 				const filtered_charts = charts.filter(function(element) {
-					return stringToLevel(q[1]) <= element.level && stringToLevel(q[2]) >= element.level;
+					return stringToLevel(q[1]) <= stringToLevel(element.level) && stringToLevel(q[2]) >= stringToLevel(element.level);
 				});
 				charts = filtered_charts;
 			}
 			else{
 				const filtered_charts = charts.filter(function(element) {
-					return stringToLevel(level) === element.const;
+					return level === element.level;
 				});
 				charts = filtered_charts;
 			}
