@@ -86,12 +86,12 @@ worksheet = connect_gspread(jsonf, spread_sheet_key)
 li = getlinks("https://wikiwiki.jp/arcaea/%E3%83%91%E3%83%83%E3%82%AF%E9%A0%86")
 for i in range(len(li)):
     data = getDatas(li[i]["url"], li[i]["pack"])
-    if data is not None:
-        cell_list = worksheet.range(f'A{i + 1}:G{i + 1}')
+    if data:
+        cell_list = worksheet.range(f'A{i + 2}:G{i + 2}')
         counter = 0
         for i in cell_list:
             if counter < len(data):
                 i.value = data[counter]
             counter += 1
         worksheet.update_cells(cell_list)
-    time.sleep(1)
+    time.sleep(0.5)
