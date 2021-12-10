@@ -7,35 +7,44 @@ module.exports = {
 		description: "entry to league (only first time)",
 		options: [
 			{
+				type: "STRING",
+				name: "arcaea_name",
+        required: true,
+				description: "Arcaea上におけるプレイヤーネーム",
+			},
+      {
 				type: "NUMBER",
 				name: "potential",
         required: true,
-				description: "potintial now (used to decide first league rank)",
+				description: "Arcaeaのポテンシャル値",
 			},
 		]
 	},
 	async execute(interaction, credentials) {
-    const doc = new GoogleSpreadsheet('1ZpZ2beBEjW0B2SxAS2TZT4f1UDl5LOkt8CjX71eHIs4');
+    const doc = new GoogleSpreadsheet('1fM6kXEjpH4BYmbgP0slfsYCMBdbYc0DfsXSCfNFxbzs');
     await doc.useServiceAccountAuth(credentials);
     await doc.loadInfo();
 
     const Sheet = await doc.sheetsById[0];
+    const arcaea_name = interaction.options.getString('arcaea_name');
 		const potential = interaction.options.getNumber('potential');
 		const Rows = await Sheet.getRows();
-		if(Rows.some(u => u.id === interaction.member.user.id))
+		if(Rows.some(u => u.user_id == interaction.member.user.id))
 		{
 			await interaction.reply({
-				content: "既にエントリーしています!\nYou have already registrated!",
+				content: "既にエントリーしています!",
 			});
 		}
 		else{
 			await Sheet.addRow({
 				'potential': potential,
-				'id': interaction.member.user.id,
+        'arcaea_name': arcaea_name,
+				'user_id': interaction.member.user.id,
+        'discord_name': interaction.member.user.username,
 			});
 
 			await interaction.reply({
-				content: "受け付けました!\naccepted!", 
+				content: "受け付けました!", 
 			});
 		}
 	},
