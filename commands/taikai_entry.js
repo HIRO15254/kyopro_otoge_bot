@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { content_v2_1 } = require("googleapis");
 
 module.exports = {
 	data: {
@@ -29,6 +30,7 @@ module.exports = {
     const arcaea_name = interaction.options.getString('arcaea_name');
 		const potential = interaction.options.getNumber('potential');
 		const Rows = await Sheet.getRows();
+    // console.log(interaction);
 		if(Rows.some(u => u.user_id == interaction.member.user.id))
 		{
 			await interaction.reply({
@@ -37,12 +39,13 @@ module.exports = {
 		}
 		else{
 			await Sheet.addRow({
+        'no': Rows.length + 1,
 				'potential': potential,
         'arcaea_name': arcaea_name,
-				'user_id': interaction.member.user.id,
-        'discord_name': interaction.member.user.username,
+				'user_id': interaction.user.id,
+        'discord_name': interaction.user.username,
 			});
-
+      await interaction.member.roles.add('918512305489207297');
 			await interaction.reply({
 				content: "受け付けました!", 
 			});
