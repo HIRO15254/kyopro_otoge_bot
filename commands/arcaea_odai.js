@@ -14,7 +14,8 @@ const pickN = (min, max, n, doubling) => {
 		const ret = [];
 		while(n--) {
 			const rand = Math.floor(Math.random() * (list.length + 1)) - 1;
-			ret.push(...list.splice(rand, 1));
+			ret.push(...
+				list.splice(rand, 1));
 		}
 		return ret;
 	}
@@ -22,7 +23,7 @@ const pickN = (min, max, n, doubling) => {
 
 module.exports = {
 	data: {
-		name: "arcaea_odai",
+		name: "arcaea_odai_help",
 		description: "Arcaeaの譜面からランダムで課題曲を生成します",
 		options: [
 			{
