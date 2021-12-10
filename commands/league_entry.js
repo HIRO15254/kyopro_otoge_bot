@@ -21,15 +21,24 @@ module.exports = {
 
     const Sheet = await doc.sheetsById[0];
 		const potential = interaction.options.getNumber('potential');
+		const Rows = await Sheet.getRows();
+		if(Rows.some(u => u.id === interaction.member.user.id))
+		{
+			await interaction.reply({
+				content: "既にエントリーしています!\nYou have already registrated!",
+				ephemeral: true 
+			});
+		}
+		else{
+			await Sheet.addRow({
+				'potential': potential,
+				'id': interaction.member.user.id,
+			});
 
-    await Sheet.addRow({
-			'potential': potential,
-			'id': interaction.member.user.id,
-		});
-
-    await interaction.reply({
-      content: "OK!",
-      ephemeral: true 
-    });
+			await interaction.reply({
+				content: "受け付けました!\naccepted!",
+				ephemeral: true 
+			});
+		}
 	},
 };
