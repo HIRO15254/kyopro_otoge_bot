@@ -26,7 +26,6 @@ module.exports = {
 		{
 			await interaction.reply({
 				content: "既にエントリーしています!\nYou have already registrated!",
-				ephemeral: true 
 			});
 		}
 		else{
@@ -36,8 +35,7 @@ module.exports = {
 			});
 
 			await interaction.reply({
-				content: "受け付けました!\naccepted!",
-				ephemeral: true 
+				content: "受け付けました!\naccepted!", 
 			});
 		}
 	},
