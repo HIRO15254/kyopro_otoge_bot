@@ -1,7 +1,6 @@
 const Discord = require("discord.js");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-
 async function get_data(id, doc) {
   const sheet = await doc.sheetsById[0];
   const users = await sheet.getRows();
