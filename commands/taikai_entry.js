@@ -31,7 +31,7 @@ module.exports = {
 		const potential = interaction.options.getNumber('potential');
 		const Rows = await Sheet.getRows();
     // console.log(interaction);
-		if(Rows.some(u => u.user_id == interaction.member.user.id))
+		if(Rows.some(u => u.user_id == interaction.user.id))
 		{
 			await interaction.reply({
 				content: "既にエントリーしています!",
