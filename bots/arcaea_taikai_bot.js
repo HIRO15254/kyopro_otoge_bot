@@ -54,7 +54,7 @@ exports.awake = async function(test){
     }
     const command = commands[interaction.commandName];
     try {
-      await command.execute(interaction, credentials);
+      await command.execute(interaction, credentials, client);
     }
     catch (error) {
       console.error(error);

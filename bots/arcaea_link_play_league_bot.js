@@ -10,7 +10,9 @@ const commandFileNames = [
   'arcaea_help.js',
   'arcaea_odai.js',
   'league_entry.js',
-  'league_matching.js'
+  'league_matching.js',
+  'league_cancel.js',
+  'league_result.js',
 ]
 const commandFiles = fs.readdirSync('./commands').filter(file => {
   let ans = false;
@@ -55,7 +57,7 @@ exports.awake = async function(test){
     }
     const command = commands[interaction.commandName];
     try {
-      await command.execute(interaction, credentials);
+      await command.execute(interaction, credentials, client);
     }
     catch (error) {
       console.error(error);
