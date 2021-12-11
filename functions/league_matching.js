@@ -94,9 +94,9 @@ function new_room(player, rooms){
 exports.matching = async function(interaction, cancel, doc, client) {
   const timesheet = await doc.sheetsById[299741918];
   const times = await timesheet.getRows();
-  // if (!times.some(time => time.now == 'TRUE')) {
-  //  return 'リーグ戦時間外です\nnow league match is not avaliable';
-  // }
+  if (!times.some(time => time.now == 'TRUE')) {
+    return 'リーグ戦時間外です\nnow league match is not avaliable';
+  }
   const sheet = await doc.sheetsById[2021610226];
   const rooms = await sheet.getRows();
   const player = await get_data(interaction.user.id, doc);
