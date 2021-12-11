@@ -26,6 +26,28 @@ function remove_from_room(player, room) {
   }
 }
 
+function hasplayed(id1, id2, rooms){
+  let ret = false
+  rooms.forEach(room => {
+    if (in_room(id1, room) && in_room(id2, room) && room.state == 'finished'){
+      ret = true
+    }
+  });
+  return ret
+}
+
+function canjoin(player, room, rooms) {
+  let p = 0
+  for(let i = 0; i < 3; i++) {
+    if(hasplayed(player.id, room['id' + i], rooms)){
+      p++;
+    }
+  }
+  if(p <= 1){
+    return true;
+  }
+}
+
 function add_to_room(player, room) {
   for(let i = 3; i > 0; i--) {
     if(room['id' + i]){
@@ -59,8 +81,10 @@ async function start_playing(room, guild, client) {
   }
 } 
 
-function new_room(player){
+function new_room(player, rooms){
+  const r = rooms.filter(room => room.league == player.league)
   return {
+    'num': r.length + 1,
     'state': 'matching',
     'league': player.league,
     'id1': player.id,
@@ -78,11 +102,11 @@ exports.matching = async function(interaction, cancel, doc, client) {
   const player = await get_data(interaction.user.id, doc);
   // 開始であった場合
   if (!cancel){
-    // if (rooms.some(room => room.state != 'finished' && in_room(player.id, room))) {
-    //  return '既にマッチングを行っています!\nYou have already been waiting for make match!'
-    // }
-    if (rooms.some(room => room.state == 'matching' && room.league == player.league)) {
-      const room = rooms.find(room => room.state === 'matching' && room.league == player.league);
+    if (rooms.some(room => room.state != 'finished' && in_room(player.id, room))) {
+      return '既にマッチングを行っています!\nYou have already been waiting for make match!'
+    }
+    if (rooms.some(room => room.state == 'matching' && room.league == player.league && canjoin(player, room, rooms))) {
+      const room = rooms.find(room => room.state === 'matching' && room.league == player.league && canjoin(player, room, rooms));
       await add_to_room(player, room);
       if (room.state == 'playing') {
         await start_playing(room, interaction.guild, client);
@@ -90,7 +114,7 @@ exports.matching = async function(interaction, cancel, doc, client) {
       await room.save();
     }
     else{
-      await sheet.addRow(new_room(player));
+      await sheet.addRow(new_room(player, rooms));
     }
     return "マッチングを開始しました\nstartded waiting for make match"
   }

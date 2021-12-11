@@ -29,9 +29,25 @@ module.exports = {
 			});
 		}
 		else{
+			let league = '';
+			let rate = 0;
+			if (potential < 11.65) {
+				league = 'B';
+				rate = Math.max(24, Math.min(100 - (11.65 - potential) * 100, 74));
+			}
+			else if (potential < 12.35) {
+				league = 'A';
+				rate = Math.max(24, Math.min(50 - (12 - potential) * 100, 74));
+			}
+			else{
+				league = 'S';
+				rate = 24 + (potential - 12.35) * 100
+			}
 			await Sheet.addRow({
 				'potential': potential,
 				'id': interaction.member.user.id,
+				'league': league,
+				'rate': rate,
 			});
 
 			await interaction.reply({

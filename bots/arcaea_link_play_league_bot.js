@@ -11,7 +11,8 @@ const commandFileNames = [
   'arcaea_odai.js',
   'league_entry.js',
   'league_matching.js',
-  'league_cancel.js'
+  'league_cancel.js',
+  'league_result.js',
 ]
 const commandFiles = fs.readdirSync('./commands').filter(file => {
   let ans = false;
