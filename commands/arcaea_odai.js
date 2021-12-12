@@ -23,7 +23,7 @@ const pickN = (min, max, n, doubling) => {
 
 module.exports = {
 	data: {
-		name: "arcaea_odai_help",
+		name: "arcaea_odai",
 		description: "Arcaeaの譜面からランダムで課題曲を生成します",
 		options: [
 			{

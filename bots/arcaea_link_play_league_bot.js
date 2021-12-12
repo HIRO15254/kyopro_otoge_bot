@@ -1,8 +1,8 @@
 const { Client, Intents } = require('discord.js');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 const fs = require('fs');
 
 const guildIDs = ['917238912672485406', ];
-
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 const commands = {};
@@ -13,13 +13,11 @@ const commandFileNames = [
   'league_matching.js',
   'league_cancel.js',
   'league_result.js',
+  'league_language.js',
+  'league_info.js'
 ]
 const commandFiles = fs.readdirSync('./commands').filter(file => {
-  let ans = false;
-  commandFileNames.forEach(name =>{
-    ans = ans || file.endsWith(name);
-  });
-  return ans;
+  return commandFileNames.some(name => file.endsWith(name));
 });
 
 let credentials = "";
@@ -56,17 +54,27 @@ exports.awake = async function(test){
       return;
     }
     const command = commands[interaction.commandName];
+
+    await interaction.deferReply({
+      ephemeral: true
+    });
     try {
-      await command.execute(interaction, credentials, client);
+      await command.execute(interaction, data, client);
     }
     catch (error) {
       console.error(error);
-      await interaction.reply({
+      await interaction.editReply({
         content: 'There was an error while executing this command!',
         ephemeral: true,
       });
     }
   });
+
+  const doc = new GoogleSpreadsheet('1ZpZ2beBEjW0B2SxAS2TZT4f1UDl5LOkt8CjX71eHIs4');
+  await doc.useServiceAccountAuth(credentials);
+  await doc.loadInfo();
+  const loader = await require('../functions/league_load.js');
+  const data = await loader.load(doc);
 
   client.login(token);
 }
