@@ -2,7 +2,7 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const Discord = require("discord.js");
 module.exports = {
 	data: {
-		name: "arcaea_help",
+		name: "arcaea_odai_help",
 		description: "arcaea関係のコマンドのヘルプです。",
 	},
 	async execute(interaction, credentials) {

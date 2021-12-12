@@ -1,6 +1,18 @@
 const Discord = require("discord.js");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
+function initial_rank(potential) {
+	if (potential < 11.00) { return 'B-'; }
+	if (potential < 11.35) { return 'B'; }
+	if (potential < 11.65) { return 'B+'; }
+	if (potential < 12.00) { return 'A-'; }
+	if (potential < 12.15) { return 'A'; }
+	if (potential < 12.35) { return 'A+'; }
+	if (potential < 12.60) { return 'S-'; }
+	if (potential < 12.80) { return 'S'; }
+	return 'S+';
+}
+
 module.exports = {
 	data: {
 		name: "entry",
@@ -12,47 +24,51 @@ module.exports = {
         required: true,
 				description: "potintial now (used to decide first league rank)",
 			},
+			{
+				type: "STRING",
+				name: "language",
+        required: true,
+				description: "your language",
+				choices: [
+					{ name: "Japanese", value: "japanese" },
+					{ name: "English", value: "english" },
+				]
+			},
 		]
 	},
-	async execute(interaction, credentials) {
-    const doc = new GoogleSpreadsheet('1ZpZ2beBEjW0B2SxAS2TZT4f1UDl5LOkt8CjX71eHIs4');
-    await doc.useServiceAccountAuth(credentials);
-    await doc.loadInfo();
-
-    const Sheet = await doc.sheetsById[0];
-		const potential = interaction.options.getNumber('potential');
-		const Rows = await Sheet.getRows();
-		if(Rows.some(u => u.id === interaction.member.user.id))
+	async execute(interaction, data, client) {
+		const replies = {
+			'alreadyentried': {
+				'japanese': '既にエントリーしています',
+				'english': 'You have already entried.'
+			},
+			'accept': {
+				'japanese': '受け付けました!',
+				'english': 'accepted!'
+			},
+		}
+		if(data.players.some(player => player.id === interaction.user.id))
 		{
-			await interaction.reply({
-				content: "既にエントリーしています!\nYou have already registrated!",
-			});
+			await interaction.editReply({
+        content: replies.alreadyentried[data.players.find(player => player.id === interaction.user.id).language],
+      });
 		}
 		else{
-			let league = '';
-			let rate = 0;
-			if (potential < 11.65) {
-				league = 'B';
-				rate = Math.max(24, Math.min(100 - (11.65 - potential) * 100, 74));
-			}
-			else if (potential < 12.35) {
-				league = 'A';
-				rate = Math.max(24, Math.min(50 - (12 - potential) * 100, 74));
-			}
-			else{
-				league = 'S';
-				rate = 24 + (potential - 12.35) * 100
-			}
-			await Sheet.addRow({
+			const potential = interaction.options.getNumber('potential');
+			const language = interaction.options.getString('language');
+			const player = await data.players[0]._sheet.addRow({
 				'potential': potential,
-				'id': interaction.member.user.id,
-				'league': league,
-				'rate': rate,
+				'language': language,
+				'id': interaction.user.id,
+				'name': interaction.user.username,
+				'rank': initial_rank(potential),
+				'rate': 25,
 			});
+			data.players.push(player);
 
-			await interaction.reply({
-				content: "受け付けました!\naccepted!", 
-			});
+			await interaction.editReply({
+        content: replies.accept[language],
+      });
 		}
 	},
 };

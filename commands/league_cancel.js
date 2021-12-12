@@ -1,25 +1,20 @@
 const Discord = require("discord.js");
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-const { recaptchaenterprise } = require("googleapis/build/src/apis/recaptchaenterprise");
 
 module.exports = {
 	data: {
 		name: "cancel",
 		description: "cancel waiting for match",
 	},
-	async execute(interaction, credentials, client) {
-    const doc = new GoogleSpreadsheet('1ZpZ2beBEjW0B2SxAS2TZT4f1UDl5LOkt8CjX71eHIs4');
-    await doc.useServiceAccountAuth(credentials);
-    await doc.loadInfo();
-
+	async execute(interaction, data, client) {
     const match = await require('../functions/league_matching.js');
-
-    await interaction.deferReply({
-      ephemeral: true
-    });
-    const rep = await match.matching(interaction, true, doc, client)
-    await interaction.editReply({
-      content: rep,
-    });
+    try {
+      const rep = await match.cancel(interaction, data, client)
+      await interaction.editReply({
+        content: rep,
+      });
+    }
+    catch (error) {
+      throw error;
+    }
 	},
 };

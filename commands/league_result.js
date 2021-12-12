@@ -1,5 +1,4 @@
 const Discord = require("discord.js");
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 module.exports = {
 	data: {
@@ -8,24 +7,28 @@ module.exports = {
     options: [
 			{
 				type: "INTEGER",
-				name: "points",
+				name: "point",
         required: true,
 				description: "your points of this match",
 			},
+      {
+				type: "USER",
+				name: "member",
+				description: "if you want to report other members points, set this",
+			},
 		]
 	},
-	async execute(interaction, credentials, client) {
-    const doc = new GoogleSpreadsheet('1ZpZ2beBEjW0B2SxAS2TZT4f1UDl5LOkt8CjX71eHIs4');
-    await doc.useServiceAccountAuth(credentials);
-    await doc.loadInfo();
+	async execute(interaction, data, client) {
     const system = await require('../functions/league_system.js');
-
-    await interaction.deferReply({
-      ephemeral: true
-    });
-    const rep = await system.result(interaction, doc, client)
-    await interaction.editReply({
-      content: rep,
-    });
+    try {
+      const rep = await system.result(interaction, data, client)
+      await interaction.editReply({
+        content: rep,
+        ephemeral: false
+      });
+    }
+    catch (error) {
+      throw error;
+    }
 	},
 };
