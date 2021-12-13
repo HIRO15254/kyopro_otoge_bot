@@ -26,7 +26,7 @@ module.exports = {
         description = `あなたはランク${player.rank}で、昇格まで${100 - parseInt(player.rate) * 2}%です`
       }
       else{
-        description = `You are in reague rank ${player.rank}, ${100 - parseInt(room_players[i].rate) * 2}% to promote.`
+        description = `You are in reague rank ${player.rank}, ${100 - parseInt(player.rate) * 2}% to promote.`
       }
 			const embed = await new Discord.MessageEmbed()
         .setImage(`https://raw.githubusercontent.com/HIRO15254/kyopro_otoge_bot/master/images/gauge${parseInt(player.rate)}.png`)
