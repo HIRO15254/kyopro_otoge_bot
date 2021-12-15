@@ -180,12 +180,26 @@ exports.matching = async function(interaction, data, client) {
     'startmatching': {
       'japanese': 'マッチングを開始しました',
       'english': 'Successfully startded waiting for make match'
+    },
+    'outoftime': {
+      'japanese': '開催時間外です',
+      'english': 'out of mathing time now'
     }
   }
   const player = data.players.find(player => player.id == interaction.user.id);
   // プレイヤー一覧にそのプレイヤーがいない
   if (player === undefined) {
     return returns.notentried.japanese + '\n' + returns.notentried.english;
+  }
+  // マッチング時間外である
+  const now = new Date()
+  if (!data.schedules.some(schedule => {
+    const start = new Date(schedule.start);
+    const end = new Date(schedule.end);
+    return (start.valueOf() < now.valueOf()) && (now.valueOf() < end.valueOf());
+  }))
+  {
+    return returns.outoftime[player.language];
   }
   // どれかのルームに参加している
   if (data.rooms.some(room => in_room_now(player.id, room))) {
