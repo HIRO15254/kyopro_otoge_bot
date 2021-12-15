@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 function in_room(id, room) {
-  return (room.id1 == id || room.id2 == id || room.id3 == id || room.id4 == id);
+  return (room.id1 == id || room.id2 == id || room.id3 == id || room.id0 == id);
 }
 
 function add_result(player, room, points) {
@@ -29,17 +29,17 @@ async function finish_match(room, data, client) {
     let rate = 12
     let rank = 1
     for (let j = 0; j < 4; j++) {
-      if(room["point" + i] < room["point" + j]) {
+      if(parseInt(room["point" + i]) < parseInt(room["point" + j])) {
         rank += 1
         rate -= 6
       }
-      else if(room["point" + i] == room["point" + j]) {
+      else if(parseInt(room["point" + i]) == parseInt(room["point" + j])) {
         rate -= 3
       }
-      rate += parseInt(room_players[j].rank) - ranks.indexOf(room_players[i].rank) 
+      rate += ranks.indexOf(room_players[j].rank) - ranks.indexOf(room_players[i].rank) 
     }
-    room_players[i].rate = Math.min(Math.max(0, parseInt(room_players[i].rate) + rate), 50);
-    let description = ''
+    room_players[i].rate = Math.min(Math.max(0, parseInt(room_players[i].rate)) + rate, 50);
+    let description = '';
     if (parseInt(room_players[i].rate) == 50 && ranks.indexOf(room_players[i].rank) != ranks.length - 1) {
       if (room_players[i].language == 'japanese') {
         description = `あなたは${rank}位になり、ランク${ranks[ranks.indexOf(users[i].rank) + 1]}に昇格しました!`
@@ -68,15 +68,15 @@ async function finish_match(room, data, client) {
         description = `You got ${place_name[rank]} place, ${100 - parseInt(room_players[i].rate) * 2}% to promote.`
       }
     }
+    await room_players[i].save();
     const embed = await new Discord.MessageEmbed()
       .setImage(`https://raw.githubusercontent.com/HIRO15254/kyopro_otoge_bot/master/images/gauge${parseInt(room_players[i].rate)}.png`)
       .setTitle('Result')
       .setDescription(description);
-    const user = await client.users.cache.get(room_players[i].id);
+    const user = await client.users.fetch(room_players[i].id);
     await user.send({
       embeds: [embed]
     });
-    await room_players[i].save();
   }
 }
 
@@ -96,7 +96,7 @@ exports.result = async function(interaction, data, client) {
     }
   }
   const member = interaction.options.getUser('member');
-  const player = ''
+  let player = ''
   if (!member) {
     player = await data.players.find(user => user.id == interaction.user.id);
   }

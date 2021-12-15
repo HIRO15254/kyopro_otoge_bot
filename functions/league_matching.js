@@ -57,6 +57,9 @@ function remove_from_room(player, room) {
  * @returns 
  */
 function hasplayed(id1, id2, rooms){
+  if (id1 == id2) {
+    return 0;
+  }
   return rooms.filter(room => in_room(id1, room) && in_room(id2, room) && room.state != 'matching').length
 }
 
@@ -72,13 +75,17 @@ function canjoin(player, room, data) {
     return false;
   }
   if (room.rank2) {
-    if (!(room.rank0 == player.rank || room.rank1 == player.rank || room.rank2 == player.rank)) {
+    if (room.rank0 != player.rank && room.rank1 != player.rank && room.rank2 != player.rank) {
+      return false;
+    }
+  }
+  else if (room.rank1) {
+    if (Math.abs(ranks.indexOf(room.rank0) - ranks.indexOf(player.rank)) > 1 && Math.abs(ranks.indexOf(room.rank1) - ranks.indexOf(player.rank)) > 1) {
       return false;
     }
   }
   else {
-    if ( !(room.rank0 && Math.abs(ranks.indexOf(room.rank0) - ranks.indexOf(player.rank)) <= 1)
-    && !(room.rank1 && Math.abs(ranks.indexOf(room.rank1) - ranks.indexOf(player.rank)) <= 1)) {
+    if (Math.abs(ranks.indexOf(room.rank0) - ranks.indexOf(player.rank)) > 1) {
       return false;
     }
   }
@@ -123,21 +130,21 @@ async function start_playing(room, guild, client, data) {
     }
   }
   const channel = await guild.channels.create(`room_${room.num}`, { parent: '919059123738402837', permissionOverwrites: [
-    {id: guild.roles.everyone.id, deny: ['VIEW_CHANNEL']},
+    {id: '917238912672485406', deny: ['VIEW_CHANNEL']},
     {id: room.id0, allow: ['ADD_REACTIONS', 'VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'USE_EXTERNAL_EMOJIS',],},
     {id: room.id1, allow: ['ADD_REACTIONS', 'VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'USE_EXTERNAL_EMOJIS',],},
     {id: room.id2, allow: ['ADD_REACTIONS', 'VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'USE_EXTERNAL_EMOJIS',],},
     {id: room.id3, allow: ['ADD_REACTIONS', 'VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'USE_EXTERNAL_EMOJIS',],},
   ]});
   const invite = await channel.createInvite();
-  for(let i = 3; i < 4; i++) 
+  for(let i = 0; i < 4; i++) 
   {
     const player = await data.players.find(user => user.id == room['id' + i]);
     const embed = await new Discord.MessageEmbed()
       .setTitle('Are you ready?')
       .setURL(invite.url)
       .setDescription(texts.description[player.language]);
-    const user = await client.users.cache.get(player.id);
+    const user = await client.users.fetch(player.id);
     await user.send({
       embeds: [embed]
     });
@@ -173,12 +180,26 @@ exports.matching = async function(interaction, data, client) {
     'startmatching': {
       'japanese': 'マッチングを開始しました',
       'english': 'Successfully startded waiting for make match'
+    },
+    'outoftime': {
+      'japanese': '開催時間外です',
+      'english': 'out of mathing time now'
     }
   }
   const player = data.players.find(player => player.id == interaction.user.id);
   // プレイヤー一覧にそのプレイヤーがいない
   if (player === undefined) {
     return returns.notentried.japanese + '\n' + returns.notentried.english;
+  }
+  // マッチング時間外である
+  const now = new Date()
+  if (!data.schedules.some(schedule => {
+    const start = new Date(schedule.start);
+    const end = new Date(schedule.end);
+    return (start.valueOf() < now.valueOf()) && (now.valueOf() < end.valueOf());
+  }))
+  {
+    return returns.outoftime[player.language];
   }
   // どれかのルームに参加している
   if (data.rooms.some(room => in_room_now(player.id, room))) {
