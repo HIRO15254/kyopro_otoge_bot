@@ -26,7 +26,7 @@ module.exports = {
     await doc.useServiceAccountAuth(credentials);
     await doc.loadInfo();
 
-    const Sheet = await doc.sheetsById[0];
+    const Sheet = doc.sheetsById[0];
     const arcaea_name = interaction.options.getString('arcaea_name');
 		const potential = interaction.options.getNumber('potential');
 		const Rows = await Sheet.getRows();
