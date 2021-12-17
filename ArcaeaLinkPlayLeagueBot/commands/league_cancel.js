@@ -6,7 +6,7 @@ module.exports = {
 		description: "cancel waiting for match",
 	},
 	async execute(interaction, data, client) {
-    const match = await require('../functions/league_matching.js');
+    const match = await require('../../functions/league_matching.js');
     try {
       const rep = await match.cancel(interaction, data, client)
       await interaction.editReply({
