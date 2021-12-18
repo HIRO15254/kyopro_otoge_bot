@@ -24,7 +24,7 @@ const commonCommandFiles = [
 /** @type {*} コマンドファイルの中身一覧 */
 const commands = {};
 
-async function ret() {
+exports.road = async function() {
   try { 
     token = fs.readFileSync("./tokens/arcaea_link_play_league_bot.txt", 'utf8').toString();
   }
@@ -58,10 +58,6 @@ async function ret() {
       return;
     }
     const command = commands[interaction.commandName];
-
-    await interaction.deferReply({
-      ephemeral: true
-    });
     try {
       await command.execute(interaction);
     }
@@ -77,4 +73,4 @@ async function ret() {
   return client;
 }
 
-module.exports = ret();
+exports.client = client;

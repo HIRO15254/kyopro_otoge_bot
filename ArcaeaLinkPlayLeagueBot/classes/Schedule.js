@@ -2,7 +2,7 @@
 const { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } = require("google-spreadsheet");
 
 /** ALPLの開催スケジュールを管理するクラス */
-class Schedule {
+module.exports = class Schedule {
   /** @type {string} */
   #name;
   /** @type {Date} */
@@ -29,6 +29,15 @@ class Schedule {
   get end() { return this.#end; }
   set end(end) { this.#end = end; }
   get spreadsheetrow() { return this.#spreadsheetrow; }
+
+  /**
+   * 現在開催されているかを返します
+   * @param {Date} now 現在時刻を表すdateクラス
+   * @returns {boolean} 開催中か否か
+   */
+  holding(now) {
+    return (this.#start.valueOf() <= now.valueOf() && now.valueOf() <= this.#end.valueOf());
+  }
 
   /**
    * 新しいSpreadSheetの行を作ってScheduleクラスのインスタンスにして返します
