@@ -1,6 +1,19 @@
 const Discord = require("discord.js");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
+// ランクと番号の対応
+const ranks = {
+  'B-': 0,
+  'B': 1,
+  'B+': 2,
+  'A-': 3,
+  'A': 4,
+  'A+': 5,
+  'S-': 6,
+  'S': 7,
+  'S+': 8
+}
+
 function in_room(id, room) {
   return (room.id1 == id || room.id2 == id || room.id3 == id || room.id0 == id);
 }
@@ -17,8 +30,18 @@ function add_result(player, room, points) {
   }
 }
 
+/**
+ * 
+ * @param {*} user 
+ * @param {*} rank 
+ * @param {*} type 
+ */
+function get_message(user, rank, type)
+{
+
+}
+
 async function finish_match(room, data, client) {
-  const ranks = ['B-', 'B', 'B+', 'A-', 'A', 'A+', 'S-', 'S', 'S+'];
   const place_name = ["1st", "2nd", "3rd", "4th"];
   const room_players = []
   for(let i = 0; i < 4; i++) {
@@ -36,7 +59,7 @@ async function finish_match(room, data, client) {
       else if(parseInt(room["point" + i]) == parseInt(room["point" + j])) {
         rate -= 3
       }
-      rate += ranks.indexOf(room_players[j].rank) - ranks.indexOf(room_players[i].rank) 
+      rate += ranks[room_players[j].rank] - ranks[room_players[i].rank]
     }
     room_players[i].rate = Math.min(Math.max(0, parseInt(room_players[i].rate)) + rate, 50);
     let description = '';
