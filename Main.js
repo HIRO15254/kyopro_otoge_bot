@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const botFiles = fs.readdirSync('./bots');
 botFiles.forEach(element => {
-	f = require('./bots/' + element);
+	const f = require('./bots/' + element);
 	f.awake(false);
 });
 const f = require('./ArcaeaLinkPlayLeagueBot/base.js');
