@@ -65,6 +65,9 @@ module.exports = class Player {
     await user.send(content);
   }
 
+  fugou(num) {
+    if (num < 0) { return }
+  }
   /**
    * レートの変動を記録しDMを送信します
    * @param {number} rank 順位
@@ -77,26 +80,26 @@ module.exports = class Player {
 
     if (result == 'promote') {
       if (this.#language == 'japanese') {
-        description = `あなたは${rank}位になり、ランク${this.#rank.rank}に昇格しました!`
+        description = `あなたは${rank}位になり、ランク${this.#rank.rank}に昇格しました! (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
       else{
-        description = `You got ${place_name[rank]} place, and you promoted to league rank ${this.#rank.rank}!`
+        description = `You got ${place_name[rank - 1]} place, and you promoted to league rank ${this.#rank.rank}! (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
     }
     else if (result == 'demote') {
       if (this.#language == 'japanese') {
-        description = `あなたは${rank}位になり、ランク${this.#rank.rank}に降格しました...`
+        description = `あなたは${rank}位になり、ランク${this.#rank.rank}に降格しました... (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
       else{
-        description = `You got ${place_name[rank]} place, and you deomoted to league rank ${this.#rank.rank}...`
+        description = `You got ${place_name[rank - 1]} place, and you deomoted to league rank ${this.#rank.rank}... (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
     }
     else {
       if (this.#language == 'japanese') {
-        description = `あなたは${rank}位になり、昇格まで${100 - this.#rank.rate * 2}%です`
+        description = `あなたは${rank}位になり、昇格まで${100 - this.#rank.rate * 2}%です (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
       else{
-        description = `You got ${place_name[rank]} place, ${100 - this.#rank.rate * 2}% to promote.`
+        description = `You got ${place_name[rank- 1]} place, ${100 - this.#rank.rate * 2}% to promote. (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
     }
     await this.save();
@@ -107,7 +110,6 @@ module.exports = class Player {
     await this.sendDM({
       embeds: [embed]
     });
-
   }
 
   /**

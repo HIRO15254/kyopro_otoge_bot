@@ -6,3 +6,5 @@ botFiles.forEach(element => {
 	f = require('./bots/' + element);
 	f.awake(false);
 });
+const f = require('./ArcaeaLinkPlayLeagueBot/base.js');
+f.awake();

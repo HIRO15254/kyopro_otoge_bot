@@ -1,7 +1,4 @@
 //@ts-check
-const Discord = require("discord.js");
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-
 const data = require("../systems/data.js").data;
 const Room = require("./../classes/Room.js");
 
@@ -14,6 +11,10 @@ const replies = {
   'mathingnow': {
     'japanese': '既にマッチングを行っています',
     'english': 'You have already been waiting for make match or playing!'
+  },
+  'playingnow': {
+    'japanese': 'まだ前回の試合の結果を全員が報告していません',
+    'english': 'Some of your opponents or you have not logged result yet'
   },
   'startmatching': {
     'japanese': 'マッチングを開始しました',
@@ -49,8 +50,7 @@ module.exports = {
     // マッチング時間外である
     /** @type {Date} 現在時刻 */
     const now = new Date()
-    /** @todo 戻す */
-    if (data.schedules.some(schedule => schedule.holding(now)))
+    if (!data.schedules.some(schedule => schedule.holding(now)))
     {
       await interaction.editReply({
         content: replies.outoftime[player.language]
@@ -59,10 +59,17 @@ module.exports = {
     }
 
     // どれかのルームに参加している
-    /** @todo 戻す */
-    if (!data.rooms.some(room => room.in_room(player) && room.state == 'matching')) {
+    if (data.rooms.some(room => room.in_room(player) && room.state == 'matching')) {
       await interaction.editReply({
         content: replies.mathingnow[player.language]
+      });
+      return;
+    }
+
+    // 結果報告が済んでいない
+    if (data.rooms.some(room => room.in_room(player) && room.state == 'playing')) {
+      await interaction.editReply({
+        content: replies.playingnow[player.language]
       });
       return;
     }
@@ -73,8 +80,8 @@ module.exports = {
       await room.add(player);
     }
     else{
-      data.rooms.push(await Room.create(data.rooms.length, player));
-    }
+      data.rooms.push(await Room.create(data.rooms.length + 1, player));
+    } 
     await interaction.editReply({
       content: replies.startmatching[player.language],
     });

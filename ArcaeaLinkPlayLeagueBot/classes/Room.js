@@ -21,7 +21,7 @@ module.exports = class Room {
   #state;
   /** @type {{min: Rank, max: Rank}} */
   #rank;
-  /** @type {Array<{player: Player, point: number}>} */
+  /** @type {Array<{player: Player, point: number, diff: number}>} */
   #players;
   /** @type {GoogleSpreadsheetRow} */
   #spreadsheetrow;
@@ -32,7 +32,9 @@ module.exports = class Room {
    * @param {{[id: string]: Player}} players 全プレイヤーのPlayerオブジェクトが格納されたArray
    */
   constructor(spreadsheetrow, players = {}) {
-    if (players == {}) { players = require("../systems/data.js").data.players; }
+    if (Object.keys(players).length == 0) {
+      players = require("../systems/data.js").data.players;
+    }
     this.#number = parseInt(spreadsheetrow.number);
     this.#state = STATE_STRING.indexOf(spreadsheetrow.state);
     this.#rank = {
@@ -42,7 +44,11 @@ module.exports = class Room {
     this.#players = [];
     for (let i = 0; i < 4; i++) {
       if (spreadsheetrow['id' + i]) {
-        this.#players.push({player: players[spreadsheetrow['id' + i]], point: spreadsheetrow.point0 || -1});
+        this.#players.push({
+          player: players[spreadsheetrow['id' + i]],
+          point: spreadsheetrow['point' + i] ? parseInt(spreadsheetrow['point' + i]) : -1,
+          diff: spreadsheetrow['diff' + i] ? parseInt(spreadsheetrow['diff' + i]) : 0
+        });
       }
     }
     this.#spreadsheetrow = spreadsheetrow;
@@ -66,14 +72,18 @@ module.exports = class Room {
     this.#spreadsheetrow.state = STATE_STRING[this.#state];
     this.#spreadsheetrow.rank_min = this.#rank.min.rank;
     this.#spreadsheetrow.rank_max = this.#rank.max.rank;
-    this.#spreadsheetrow.id0 = this.#players[0].player.id || '';
-    this.#spreadsheetrow.id1 = this.#players[1].player.id || '';
-    this.#spreadsheetrow.id2 = this.#players[2].player.id || '';
-    this.#spreadsheetrow.id3 = this.#players[3].player.id || '';
-    this.#spreadsheetrow.point0 = this.#players[0].point || '';
-    this.#spreadsheetrow.point1 = this.#players[1].point || '';
-    this.#spreadsheetrow.point2 = this.#players[2].point || '';
-    this.#spreadsheetrow.point3 = this.#players[3].point || '';
+    for(let i = 0; i < 4; i++) {
+      if (this.#players.length > i) {
+        this.#spreadsheetrow['id' + i] = this.#players[i].player.id;
+        this.#spreadsheetrow['point' + i] = this.#players[i].point;
+        this.#spreadsheetrow['diff' + i] = this.#players[i].diff;
+      }
+      else {
+        this.#spreadsheetrow['id' + i] = '';
+        this.#spreadsheetrow['point' + i] = '';
+        this.#spreadsheetrow['diff' + i] = '';
+      }
+    }
     await this.#spreadsheetrow.save();
   }
 
@@ -101,7 +111,7 @@ module.exports = class Room {
     let counter = 0;
     this.#players.forEach(room_player => {
       data.rooms.forEach(other_room => {
-        if (other_room != this && other_room.state != 'matching' && other_room.in_room(player, room_player.player)) counter++;
+        if (other_room != this && other_room.state == 'finished' && other_room.in_room(player, room_player.player)) counter++;
       })
     })
     return counter < 2;
@@ -124,9 +134,9 @@ module.exports = class Room {
    * @param {Player} player 追加される人
    */
   async add(player) {
-    this.#players.push({ player: player, point: -1 });
+    this.#players.push({ player: player, point: -1, diff: 0 });
     if (this.#rank.max.valueOf() < player.rank.valueOf()) this.#rank.max = player.rank;
-    if (player.rank.valueOf() < this.#rank.min.valueOf()) this.#rank.max = player.rank;
+    if (player.rank.valueOf() < this.#rank.min.valueOf()) this.#rank.min = player.rank;
     if (this.#players.length == 4) {
       await this.start();
     }
@@ -144,6 +154,12 @@ module.exports = class Room {
       return true;
     }
     else{
+      this.#rank.min = this.#players[0].player.rank;
+      this.#rank.max = this.#players[0].player.rank;
+      for (let i = 1; i < this.#players.length; i++) {
+        if (this.#rank.max.valueOf() < this.#players[i].player.rank.valueOf()) this.#rank.max = this.#players[i].player.rank;
+        if (this.#players[i].player.rank.valueOf() < this.#rank.min.valueOf()) this.#rank.min = this.#players[i].player.rank;
+      }
       await this.save();
       return false;
     }
@@ -157,7 +173,7 @@ module.exports = class Room {
   async add_result(player, point) {
     const result_player = this.#players.find(room_player => room_player.player == player);
     result_player.point = point;
-    if (!this.#players.some(room_player => room_player.point != -1)) {
+    if (!this.#players.some(room_player => room_player.point == -1)) {
       await this.finish();
     }
     await this.save();
@@ -165,8 +181,8 @@ module.exports = class Room {
 
   async finish() {
     for(let i in this.#players) {
-      let rate = 12
-      let rank = 1
+      let rate = 9;
+      let rank = 1;
       for (let j in this.#players) {
         if (i != j) {
           if(this.#players[i].point < this.#players[j].point) {
@@ -179,7 +195,8 @@ module.exports = class Room {
           rate += this.#players[j].player.rank.rankint - this.#players[i].player.rank.rankint
         }
       }
-      this.#players[i].player.result(rank, rate);
+      this.#players[i].diff = rate;
+      await this.#players[i].player.result(rank, rate);
     }
     this.#state = 2;
   }
@@ -188,7 +205,7 @@ module.exports = class Room {
    * 部屋を削除します
    */
   async delete() {
-    await this.#spreadsheetrow.delete()
+    await this.#spreadsheetrow.delete();
   }
 
   /**
@@ -238,6 +255,7 @@ module.exports = class Room {
       'rank_min': player.rank.rank,
       'rank_max': player.rank.rank,
       'id0': player.id,
+      'point0': -1
     });
     return new Room(spreadsheetrow);
   }

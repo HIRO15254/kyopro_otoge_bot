@@ -1,10 +1,6 @@
 //@ts-check
-const Discord = require("discord.js");
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const data = require("../systems/data.js").data;
-const Room = require("./../classes/Room.js");
-const Player = require("./../classes/Player.js");
 
 const replies = {
 	'notentried': {
@@ -17,11 +13,11 @@ const replies = {
 	},
 	'logged': {
 		'japanese': '結果を記録しました',
-		'english': 'Sucessfully logged your result'
+		'english': 'Sucessfully logged result'
 	},
 	'nomatch': {
 		'japanese': '結果を記録する対象がありません',
-		'english': 'There is no match to log your result'
+		'english': 'There is no match to log result'
 	}
 }
 

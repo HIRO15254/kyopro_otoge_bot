@@ -11,9 +11,9 @@ const PROMOTE_RATE = 50;
 /** @type {number} 降格するレート値 */
 const DEMOTE_RATE = 0;
 /** @type {number} 昇格直後のレート値 */
-const RATE_AFTER_PROMOTE = 12;
+const RATE_AFTER_PROMOTE = 10;
 /** @type {number} 降格直後のレート値 */
-const RATE_AFTER_DEMOTE = 38;
+const RATE_AFTER_DEMOTE = 40;
 
 
 /** リーグランクを管理するクラス */
@@ -63,7 +63,7 @@ module.exports = class Rank {
     this.#rate += rate_diff;
     this.#rate = Math.max(this.#rate, DEMOTE_RATE);
     this.#rate = Math.min(this.#rate, PROMOTE_RATE);
-    if (this.#rate = PROMOTE_RATE) {
+    if (this.#rate == PROMOTE_RATE) {
       if (this.#rank != RANKS.length - 1) {
         this.#rank += 1;
         this.#rate = RATE_AFTER_PROMOTE;
@@ -73,7 +73,7 @@ module.exports = class Rank {
         return 'none';
       }
     }
-    if (this.#rate = DEMOTE_RATE) {
+    if (this.#rate == DEMOTE_RATE) {
       if (this.#rank != 0) {
         this.#rank -= 1;
         this.#rate = RATE_AFTER_DEMOTE;
