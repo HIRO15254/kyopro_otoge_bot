@@ -7,6 +7,7 @@ const Rank = require("./Rank.js");
 const SPREADSHEET = require('./../systems/spreadsheet.js').spreadsheet;
 
 const client = require("./../systems/discord.js").client;
+const DISCORD_GUILD_ID = '917238912672485406'
 
 /** プレイヤー情報を格納するクラス */
 module.exports = class Player {
@@ -31,6 +32,7 @@ module.exports = class Player {
     this.#language = spreadsheetrow.language;
     this.#rank = new Rank(spreadsheetrow.rank, parseInt(spreadsheetrow.rate));
     this.#spreadsheetrow = spreadsheetrow;
+    this.reset_role();
   }
   // GetterとSetter
   get id() { return this.#id; }
@@ -65,9 +67,6 @@ module.exports = class Player {
     await user.send(content);
   }
 
-  fugou(num) {
-    if (num < 0) { return }
-  }
   /**
    * レートの変動を記録しDMを送信します
    * @param {number} rank 順位
@@ -79,6 +78,7 @@ module.exports = class Player {
     let description = '';
 
     if (result == 'promote') {
+      this.reset_role();
       if (this.#language == 'japanese') {
         description = `あなたは${rank}位になり、ランク${this.#rank.rank}に昇格しました! (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
@@ -87,6 +87,7 @@ module.exports = class Player {
       }
     }
     else if (result == 'demote') {
+      this.reset_role();
       if (this.#language == 'japanese') {
         description = `あなたは${rank}位になり、ランク${this.#rank.rank}に降格しました... (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
@@ -110,6 +111,12 @@ module.exports = class Player {
     await this.sendDM({
       embeds: [embed]
     });
+  }
+
+  async reset_role() {
+    const guildmember = await client.guilds.cache.get(DISCORD_GUILD_ID).members.fetch(this.#id)
+    await guildmember.roles.remove(Rank.getroles());
+    await guildmember.roles.add(this.#rank.getrole());
   }
 
   /**

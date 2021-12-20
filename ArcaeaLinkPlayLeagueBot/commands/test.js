@@ -17,12 +17,10 @@ module.exports = {
       ephemeral: true
     });
 
-    const guild = client.guilds.cache.get(DISCORD_GUILD_ID);
-    /** @type {Discord.TextChannel} */
-    const channel = await guild.channels.create(`test`, { parent: '919059123738402837', permissionOverwrites: [{id: guild.roles.everyone, deny: ['VIEW_CHANNEL']},]});
     const ids = Object.keys(data.players);
     for (let i in ids) {
-      await channel.permissionOverwrites.create( await client.users.fetch(ids[i]), { VIEW_CHANNEL:true } )
+      try { await data.players[ids[i]].reset_role(); }
+      catch { console.log(ids[i]); }
     }
     await interaction.editReply("done.");
 	},
