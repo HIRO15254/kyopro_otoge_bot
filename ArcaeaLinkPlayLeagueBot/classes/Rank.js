@@ -6,6 +6,11 @@ const RANKS = ['B-', 'B', 'B+', 'A-', 'A', 'A+', 'S-', 'S', 'S+'];
 /** @type {Array<number>} 初期ランクの下限レーティング値 */
 const RANK_POTENTIALS = [0.00, 11.00, 11.35, 11.65, 12.00, 12.15, 12.35, 12.60, 12.80];
 
+const Discord = require("discord.js");
+const client = require("./../systems/discord.js").client;
+const DISCORD_GUILD_ID = '917238912672485406'
+
+
 /** @type {number} 昇格に必要なレート値 */
 const PROMOTE_RATE = 50;
 /** @type {number} 降格するレート値 */
@@ -84,6 +89,25 @@ module.exports = class Rank {
       }
     }
     return 'none';
+  }
+
+  /**
+   * このリーグランクのロールを取得する
+   * @returns {Discord.Role} このリーグランクのロール
+   */
+  getrole() {
+    return client.guilds.cache.get(DISCORD_GUILD_ID).roles.cache.find(role => role.name == this.rank);
+  }
+
+  /**
+   * リーグランクを表すロールの一覧を取得する
+   * @returns {Array<Discord.Role>} リーグランクを表すロールの一覧
+   */
+  static getroles() {
+    const roles = client.guilds.cache.get(DISCORD_GUILD_ID).roles.cache;
+    const ret = [];
+    RANKS.forEach(rank => ret.push(roles.find(role => role.name == rank)));
+    return ret;
   }
 
   /**
