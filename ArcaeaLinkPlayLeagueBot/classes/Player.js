@@ -32,7 +32,6 @@ module.exports = class Player {
     this.#language = spreadsheetrow.language;
     this.#rank = new Rank(spreadsheetrow.rank, parseInt(spreadsheetrow.rate));
     this.#spreadsheetrow = spreadsheetrow;
-    this.reset_role();
   }
   // GetterとSetter
   get id() { return this.#id; }
@@ -114,7 +113,7 @@ module.exports = class Player {
   }
 
   async reset_role() {
-    const guildmember = await client.guilds.cache.get(DISCORD_GUILD_ID).members.fetch(this.#id)
+    const guildmember = await (await client.guilds.fetch(DISCORD_GUILD_ID)).members.fetch(this.#id)
     await guildmember.roles.remove(Rank.getroles());
     await guildmember.roles.add(this.#rank.getrole());
   }

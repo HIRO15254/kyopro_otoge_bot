@@ -57,6 +57,7 @@ module.exports = {
 		}
 		else{
 			data.players[interaction.user.id] = await Player.create(interaction.user.id, interaction.user.username, language, Rank.GetInitialRank(potential) );
+			data.players[interaction.user.id].reset_role();
 
 			await interaction.editReply({
         content: replies.accept[language],
