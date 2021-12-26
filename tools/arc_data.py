@@ -84,14 +84,15 @@ jsonf = str(Path(__file__).resolve().parent.parent) + "\\credentials.json"
 spread_sheet_key = "11PDRjN6gcPexgxuYui5B_Xd0BRQQ8tImKh31SVHnmWo"
 worksheet = connect_gspread(jsonf, spread_sheet_key)
 li = getlinks("https://wikiwiki.jp/arcaea/%E3%83%91%E3%83%83%E3%82%AF%E9%A0%86")
-for i in range(len(li)):
+row = 0
+for i in range(len(li) - 1):
     data = getDatas(li[i]["url"], li[i]["pack"])
     if data:
-        cell_list = worksheet.range(f'A{i + 2}:G{i + 2}')
+        cell_list = worksheet.range(f'A{row + 2}:G{row + 2}')
         counter = 0
-        for i in cell_list:
-            if counter < len(data):
-                i.value = data[counter]
+        for j in cell_list:
+            j.value = data[counter] if counter < len(data) else ""
             counter += 1
         worksheet.update_cells(cell_list)
+        row += 1
     time.sleep(0.5)

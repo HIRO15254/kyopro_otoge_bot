@@ -6,7 +6,7 @@ function constToLevel(cons) {
 		return String(cons_int);
 	}
 	else{
-		if(cons - cons_int < 0.7){
+		if(cons - cons_int <= 0.6){
 			return String(cons_int);
 		}
 		else{
@@ -45,6 +45,7 @@ exports.query = async function(credentials, query) {
     });
     charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': ['Past', 'PST'], 'const': parseFloat(e.past), 'level': constToLevel(parseFloat(e.past))});
     charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': ['Present', 'PRS'], 'const': parseFloat(e.present), 'level': constToLevel(parseFloat(e.present)) });
+    if (e.title === 'Final Step!') { charts[charts.length - 1].level = 6;}
     charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': ['Future', 'FTR'], 'const': parseFloat(e.future), 'level': constToLevel(parseFloat(e.future)) });
     if (e.title === 'dropdead') { charts[charts.length - 1].level = 8; }
     if (e.beyond) {
