@@ -33,6 +33,7 @@ exports.query = async function(credentials, query) {
   const doc = new GoogleSpreadsheet('11PDRjN6gcPexgxuYui5B_Xd0BRQQ8tImKh31SVHnmWo');
   await doc.useServiceAccountAuth(credentials);
   await doc.loadInfo();
+  const short_diff = {'Past': 'PST', 'Present': 'PRS', 'Future': 'FTR', 'Beyond': 'BYD'}
 
   const Sheet = await doc.sheetsById[624650468];
   const Rows = await Sheet.getRows();
@@ -43,14 +44,7 @@ exports.query = async function(credentials, query) {
     e.pack.split(' ').forEach(function(e) {
       pack_short += e[0];
     });
-    charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': ['Past', 'PST'], 'const': parseFloat(e.past), 'level': constToLevel(parseFloat(e.past))});
-    charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': ['Present', 'PRS'], 'const': parseFloat(e.present), 'level': constToLevel(parseFloat(e.present)) });
-    if (e.title === 'Final Step!') { charts[charts.length - 1].level = 6;}
-    charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': ['Future', 'FTR'], 'const': parseFloat(e.future), 'level': constToLevel(parseFloat(e.future)) });
-    if (e.title === 'dropdead') { charts[charts.length - 1].level = 8; }
-    if (e.beyond) {
-      charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': ['Beyond', 'BYD'], 'const': parseFloat(e.beyond), 'level': constToLevel(parseFloat(e.beyond)) });
-    }
+    charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': [e.difficulty, short_diff[e.difficulty]], 'const': parseFloat(e.const), 'level': e.level });
   });
 
   if (query.pack) {
