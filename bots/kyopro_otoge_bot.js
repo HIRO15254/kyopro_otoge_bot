@@ -1,7 +1,7 @@
 const { Client, Intents } = require('discord.js');
 const fs = require('fs');
 
-const guildIDs = ['821604538338902091', '702851795717718066', ];
+const guildIDs = ['821604538338902091', '702851795717718066',];
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
@@ -13,9 +13,9 @@ const commandFileNames = [
   'recommend_set.js',
   'recommend_link.js'
 ]
-const commandFiles = fs.readdirSync('./commands').filter(file => {
+const commandFiles = fs.readdirSync('./common_commands').filter(file => {
   let ans = false;
-  commandFileNames.forEach(name =>{
+  commandFileNames.forEach(name => {
     ans = ans || file.endsWith(name);
   });
   return ans;
@@ -24,18 +24,18 @@ const commandFiles = fs.readdirSync('./commands').filter(file => {
 let credentials = "";
 let token = "";
 
-exports.awake = async function(test){
-  if(test){
+exports.awake = async function (test) {
+  if (test) {
     token = await fs.readFileSync("./tokens/kyopro_otoge_bot_token.txt", 'utf8').toString();
     credentials = require('../credentials.json');
   }
-  else{
+  else {
     token = process.env.DISCORD_TOKEN;
     credentials = require("/app/google-credentials.json");
   }
 
   for (const file of commandFiles) {
-    const command = require(`../commands/${file}`);
+    const command = require(`../common_commands/${file}`);
     commands[command.data.name] = command;
   }
 

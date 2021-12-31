@@ -12,49 +12,39 @@ const DISCORD_GUILD_ID = '917238912672485406'
 /** プレイヤー情報を格納するクラス */
 module.exports = class Player {
   /** @type {string} */
-  #id;
+  id;
   /** @type {string} */
-  #name;
+  name;
   /** @type {string} */
-  #language;
+  language;
   /** @type {Rank} */
-  #rank;
+  rank;
   /** @type {GoogleSpreadsheetRow} */
-  #spreadsheetrow;
+  spreadsheetrow;
   /**
    * プレイヤークラスのインスタンスを生成する
    * @param {GoogleSpreadsheetRow} spreadsheetrow 対応するGoogleSpreadSheetRowオブジェクト
    * @memberof Player
    */
   constructor(spreadsheetrow) {
-    this.#id = spreadsheetrow.id;
-    this.#name = spreadsheetrow.name;
-    this.#language = spreadsheetrow.language;
-    this.#rank = new Rank(spreadsheetrow.rank, parseInt(spreadsheetrow.rate));
-    this.#spreadsheetrow = spreadsheetrow;
+    this.id = spreadsheetrow.id;
+    this.name = spreadsheetrow.name;
+    this.language = spreadsheetrow.language;
+    this.rank = new Rank(spreadsheetrow.rank, parseInt(spreadsheetrow.rate));
+    this.spreadsheetrow = spreadsheetrow;
   }
-  // GetterとSetter
-  get id() { return this.#id; }
-  set id(id) { this.#id = id; }
-  get name() { return this.#name; }
-  set name(name) { this.#name = name; }
-  get language() { return this.#language; }
-  set language(language) { this.#language = language; }
-  get rank() { return this.#rank }
-  set rank(rank) { this.#rank = rank; }
-  get spreadsheetrow() { return this.#spreadsheetrow; }
 
   async save() {
-    this.#spreadsheetrow.id = this.#id;
-    this.#spreadsheetrow.name = this.#name;
-    this.#spreadsheetrow.language = this.#language;
-    this.#spreadsheetrow.rank = this.#rank.rank;
-    this.#spreadsheetrow.rate = this.#rank.rate;
-    await this.#spreadsheetrow.save()
+    this.spreadsheetrow.id = this.id;
+    this.spreadsheetrow.name = this.name;
+    this.spreadsheetrow.language = this.language;
+    this.spreadsheetrow.rank = this.rank.rank;
+    this.spreadsheetrow.rate = this.rank.rate;
+    await this.spreadsheetrow.save()
   }
 
   async delete() {
-    await this.#spreadsheetrow.delete();
+    await this.spreadsheetrow.delete();
   }
 
   /**
@@ -73,38 +63,38 @@ module.exports = class Player {
    */
   async result(rank, rate) {
     const place_name = ["1st", "2nd", "3rd", "4th"];
-    const result = this.#rank.changeRate(rate);
+    const result = this.rank.changeRate(rate);
     let description = '';
 
     if (result == 'promote') {
       this.reset_role();
-      if (this.#language == 'japanese') {
-        description = `あなたは${rank}位になり、ランク${this.#rank.rank}に昇格しました! (${rate < 0 ? '' : '+'}${rate * 2}%)`
+      if (this.language == 'japanese') {
+        description = `あなたは${rank}位になり、ランク${this.rank.rank}に昇格しました! (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
-      else{
-        description = `You got ${place_name[rank - 1]} place, and you promoted to league rank ${this.#rank.rank}! (${rate < 0 ? '' : '+'}${rate * 2}%)`
+      else {
+        description = `You got ${place_name[rank - 1]} place, and you promoted to league rank ${this.rank.rank}! (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
     }
     else if (result == 'demote') {
       this.reset_role();
-      if (this.#language == 'japanese') {
-        description = `あなたは${rank}位になり、ランク${this.#rank.rank}に降格しました... (${rate < 0 ? '' : '+'}${rate * 2}%)`
+      if (this.language == 'japanese') {
+        description = `あなたは${rank}位になり、ランク${this.rank.rank}に降格しました... (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
-      else{
-        description = `You got ${place_name[rank - 1]} place, and you deomoted to league rank ${this.#rank.rank}... (${rate < 0 ? '' : '+'}${rate * 2}%)`
+      else {
+        description = `You got ${place_name[rank - 1]} place, and you deomoted to league rank ${this.rank.rank}... (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
     }
     else {
-      if (this.#language == 'japanese') {
-        description = `あなたは${rank}位になり、昇格まで${100 - this.#rank.rate * 2}%です (${rate < 0 ? '' : '+'}${rate * 2}%)`
+      if (this.language == 'japanese') {
+        description = `あなたは${rank}位になり、昇格まで${100 - this.rank.rate * 2}%です (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
-      else{
-        description = `You got ${place_name[rank- 1]} place, ${100 - this.#rank.rate * 2}% to promote. (${rate < 0 ? '' : '+'}${rate * 2}%)`
+      else {
+        description = `You got ${place_name[rank - 1]} place, ${100 - this.rank.rate * 2}% to promote. (${rate < 0 ? '' : '+'}${rate * 2}%)`
       }
     }
     await this.save();
     const embed = new Discord.MessageEmbed()
-      .setImage(`https://raw.githubusercontent.com/HIRO15254/kyopro_otoge_bot/master/images/gauge${this.#rank.rate}.png`)
+      .setImage(`https://raw.githubusercontent.com/HIRO15254/kyopro_otoge_bot/master/images/gauge${this.rank.rate}.png`)
       .setTitle('Result')
       .setDescription(description);
     await this.sendDM({
@@ -112,10 +102,13 @@ module.exports = class Player {
     });
   }
 
+  /**
+   * プレイヤーのロールを現在のランクにセット
+   */
   async reset_role() {
-    const guildmember = await (await client.guilds.fetch(DISCORD_GUILD_ID)).members.fetch(this.#id)
+    const guildmember = await (await client.guilds.fetch(DISCORD_GUILD_ID)).members.fetch(this.id);
     await guildmember.roles.remove(Rank.getroles());
-    await guildmember.roles.add(this.#rank.getrole());
+    await guildmember.roles.add(this.rank.getrole());
   }
 
   /**

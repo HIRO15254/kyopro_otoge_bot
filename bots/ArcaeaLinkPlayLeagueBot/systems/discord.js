@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 /** @type {Array<string>} ALPLサーバーのID */
-const guildIDs = ['917238912672485406', ];
+const guildIDs = ['917238912672485406',];
 
 /** @type {Client} Discordのクライアント */
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
@@ -24,8 +24,8 @@ const commonCommandFiles = [
 /** @type {*} コマンドファイルの中身一覧 */
 const commands = {};
 
-exports.road = async function() {
-  try { 
+exports.road = async function () {
+  try {
     token = fs.readFileSync("./tokens/arcaea_link_play_league_bot.txt", 'utf8').toString();
   }
   catch {
@@ -34,7 +34,7 @@ exports.road = async function() {
 
   // コマンド一覧の取得
   for (const file of commonCommandFiles) {
-    const command = require(`./../../commands/${file}`);
+    const command = require(`./../../../common_commands/${file}`);
     commands[command.data.name] = command;
   }
   for (const file of leagueCommandFiles) {
