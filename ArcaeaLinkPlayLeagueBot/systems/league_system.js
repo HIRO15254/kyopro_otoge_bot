@@ -30,17 +30,6 @@ function add_result(player, room, points) {
   }
 }
 
-/**
- * 
- * @param {*} user 
- * @param {*} rank 
- * @param {*} type 
- */
-function get_message(user, rank, type)
-{
-
-}
-
 async function finish_match(room, data, client) {
   const place_name = ["1st", "2nd", "3rd", "4th"];
   const room_players = []
