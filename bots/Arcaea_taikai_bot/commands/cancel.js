@@ -11,8 +11,8 @@ const replies = {
 
 module.exports = {
   data: {
-    name: "entry",
-    description: "大会へのエントリーをキャンセルする",
+    name: "cancel",
+    description: "大会へのエントリーをキャンセルします",
   },
   /** @param {Discord.CommandInteraction} interaction */
   async execute(interaction) {
