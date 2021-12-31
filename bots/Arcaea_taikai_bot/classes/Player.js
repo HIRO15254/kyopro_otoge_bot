@@ -41,6 +41,9 @@ module.exports = class Player {
   }
 
   async delete() {
+    const guildmember = await (await client.guilds.fetch(DISCORD_GUILD_ID)).members.fetch(this.id);
+    const role = client.guilds.cache.get(DISCORD_GUILD_ID).roles.cache.find(role => role.name == '第２回大会参加者');
+    await guildmember.roles.remove(role);
     await this.spreadsheetrow.delete();
   }
 
