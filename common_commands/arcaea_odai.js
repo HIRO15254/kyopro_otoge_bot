@@ -1,18 +1,18 @@
 const Discord = require("discord.js");
 
 const pickN = (min, max, n, doubling) => {
-	if(doubling){
+	if (doubling) {
 		const ret = [];
-		for(let i = 0; i < n; i++){
+		for (let i = 0; i < n; i++) {
 			const rand = Math.floor(Math.random() * (max - min + 1)) + min
 			ret.push(rand);
 		}
 		return ret;
 	}
-	else{
-		const list = new Array(max-min+1).fill().map((_, i) => i + min);
+	else {
+		const list = new Array(max - min + 1).fill().map((_, i) => i + min);
 		const ret = [];
-		while(n--) {
+		while (n--) {
 			const rand = Math.floor(Math.random() * (list.length + 1)) - 1;
 			ret.push(...
 				list.splice(rand, 1));
@@ -63,7 +63,7 @@ module.exports = {
 			},
 		]
 	},
-	async execute(interaction, credentials) {
+	async execute(interaction) {
 		let query = {};
 		query.pack = interaction.options.getString('pack');
 		query.level = interaction.options.getString('level');
@@ -74,13 +74,13 @@ module.exports = {
 		const doubling = interaction.options.getBoolean('doubling') || false;
 
 		const f = require('../functions/arcaea_query');
-		const charts = await f.query(credentials, query);
+		const charts = await f.query(query);
 
 		if (charts.length !== 0) {
-			if(repeat){
+			if (repeat) {
 				let ret = '\n';
 				const nums = pickN(0, charts.length - 1, Math.min(repeat, 10), doubling);
-				
+
 				nums.forEach(num => {
 					const chart = charts[num];
 					console.log(chart, num)
@@ -91,7 +91,7 @@ module.exports = {
 					ephemeral: private
 				});
 			}
-			else{
+			else {
 				const num = Math.floor(Math.random() * charts.length);
 				const chart = charts[num];
 				const embed = new Discord.MessageEmbed()
@@ -106,7 +106,7 @@ module.exports = {
 		else {
 			await interaction.reply({
 				content: 'エラー: 条件に合致する譜面が見つかりませんでした。',
-				ephemeral: true 
+				ephemeral: true
 			});
 		}
 	},

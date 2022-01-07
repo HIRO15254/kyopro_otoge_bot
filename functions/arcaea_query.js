@@ -1,39 +1,47 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 function constToLevel(cons) {
-	const cons_int = parseInt(cons)
-	if(cons < 9){
-		return String(cons_int);
-	}
-	else{
-		if(cons - cons_int <= 0.6){
-			return String(cons_int);
-		}
-		else{
-			return String(cons_int) + "+";
-		}
-	}
+  const cons_int = parseInt(cons)
+  if (cons < 9) {
+    return String(cons_int);
+  }
+  else {
+    if (cons - cons_int <= 0.6) {
+      return String(cons_int);
+    }
+    else {
+      return String(cons_int) + "+";
+    }
+  }
 }
 
 function stringToLevel(str) {
-	if (str[str.length - 1] == '+'){
-		return parseInt(str.substring(0, str.length - 1)) * 2 - 8
-	}
-	else{
-		if(parseInt(str) < 9){
-			return parseInt(str)
-		}
-		else{
-			return parseInt(str) * 2 - 9
-		}
-	}
+  if (str[str.length - 1] == '+') {
+    return parseInt(str.substring(0, str.length - 1)) * 2 - 8
+  }
+  else {
+    if (parseInt(str) < 9) {
+      return parseInt(str)
+    }
+    else {
+      return parseInt(str) * 2 - 9
+    }
+  }
 }
 
-exports.query = async function(credentials, query) {
+exports.query = async function (query) {
   const doc = new GoogleSpreadsheet('11PDRjN6gcPexgxuYui5B_Xd0BRQQ8tImKh31SVHnmWo');
+  let credentials;
+  try {
+    credentials = require('../credentials.json');
+  }
+  catch {
+    //@ts-expect-error
+    credentials = require("/app/google-credentials.json");
+  }
   await doc.useServiceAccountAuth(credentials);
   await doc.loadInfo();
-  const short_diff = {'Past': 'PST', 'Present': 'PRS', 'Future': 'FTR', 'Beyond': 'BYD'}
+  const short_diff = { 'Past': 'PST', 'Present': 'PRS', 'Future': 'FTR', 'Beyond': 'BYD' }
 
   const Sheet = await doc.sheetsById[624650468];
   const Rows = await Sheet.getRows();
@@ -41,7 +49,7 @@ exports.query = async function(credentials, query) {
   let charts = [];
   Rows.forEach(e => {
     let pack_short = ''
-    e.pack.split(' ').forEach(function(e) {
+    e.pack.split(' ').forEach(function (e) {
       pack_short += e[0];
     });
     charts.push({ 'title': e.title, 'artist': e.artist, 'pack': [e.pack, pack_short], 'diff': [e.difficulty, short_diff[e.difficulty]], 'const': parseFloat(e.const), 'level': e.level });
@@ -49,9 +57,9 @@ exports.query = async function(credentials, query) {
 
   if (query.pack) {
     const packs = query.pack.split(',');
-    const filtered_charts = charts.filter(function(element) {
+    const filtered_charts = charts.filter(function (element) {
       let ans = false
-      packs.forEach(function(pack) {
+      packs.forEach(function (pack) {
         if (element.pack[0].toLowerCase() === pack.toLowerCase() || element.pack[1].toLowerCase() === pack.toLowerCase()) {
           ans = true;
         }
@@ -63,9 +71,9 @@ exports.query = async function(credentials, query) {
 
   if (query.diff) {
     const diffs = query.diff.split(',');
-    const filtered_charts = charts.filter(function(element) {
+    const filtered_charts = charts.filter(function (element) {
       let ans = false
-      diffs.forEach(function(diff) {
+      diffs.forEach(function (diff) {
         if (element.diff[0].toLowerCase() === diff.toLowerCase() || element.diff[1].toLowerCase() === diff.toLowerCase()) {
           ans = true;
         }
@@ -77,15 +85,15 @@ exports.query = async function(credentials, query) {
 
   if (query.cons) {
     let re = /{(.+?):(.+?)}/;
-    if (re.exec(query.cons)){
+    if (re.exec(query.cons)) {
       q = re.exec(query.cons);
-      const filtered_charts = charts.filter(function(element) {
+      const filtered_charts = charts.filter(function (element) {
         return parseFloat(q[1]) <= element.const && parseFloat(q[2]) >= element.const;
       });
       charts = filtered_charts;
     }
-    else{
-      const filtered_charts = charts.filter(function(element) {
+    else {
+      const filtered_charts = charts.filter(function (element) {
         return parseFloat(query.cons) === element.const;
       });
       charts = filtered_charts;
@@ -94,15 +102,15 @@ exports.query = async function(credentials, query) {
 
   if (query.level) {
     let re = /{(.+?):(.+?)}/;
-    if (re.exec(query.level)){
+    if (re.exec(query.level)) {
       q = re.exec(query.level);
-      const filtered_charts = charts.filter(function(element) {
+      const filtered_charts = charts.filter(function (element) {
         return stringToLevel(q[1]) <= stringToLevel(element.level) && stringToLevel(q[2]) >= stringToLevel(element.level);
       });
       charts = filtered_charts;
     }
-    else{
-      const filtered_charts = charts.filter(function(element) {
+    else {
+      const filtered_charts = charts.filter(function (element) {
         return query.level === element.level;
       });
       charts = filtered_charts;
